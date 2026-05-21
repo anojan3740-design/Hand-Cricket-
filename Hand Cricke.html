@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Cricket 2.0 by ASA Gh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient, linear-gradient(135deg, #111827, #312e81));
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: background 0.6s ease;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.08), transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+       .menu-btn {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+       .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+       .menu-container, #playing {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+       .color-picker,.skin-grid {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+       .skin-card {
+            width: 48%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+       .skin-card.owned {
+            border-color: #22c55e;
+        }
+
+       .skin-preview {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+       .skin-price {
+            font-size: 0.85rem;
+            color: #fbbf24;
+            margin: 5px 0;
+        }
+
+       .skin-btn {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+       .skin-btn.buy {
+            background: #3b82f6;
+            color: white;
+        }
+
+       .skin-btn.equip {
+            background: #22c55e;
+            color: white;
+        }
+
+       .skin-btn.equipped {
+            background: rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+            cursor: default;
+        }
+
+       .color-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+       .color-btn:hover {
+            transform: scale(1.15);
+            border-color: white;
+            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+        }
+
+       .color-btn.active {
+            border: 3px solid white;
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
+        }
+
+       .color-btn::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #94a3b8;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+       .color-btn:hover::after {
+            opacity: 1;
+        }
+
+       .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+       .icon-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+       .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+       .logo-area {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+       .logo {
+            width: 160px;
+            height: 160px;
+            background: var(--bat-gradient, linear-gradient(45deg, #f43f5e, #ec4899));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 0 40px var(--bat-glow, rgba(244, 63, 94, 0.5));
+            margin-bottom: 1rem;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            animation: float 4s ease-in-out infinite;
+            transition: all 0.4s ease;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+       .game-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #fff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+       .bottom-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+       .play-btn {
+            width: 80%;
+            padding: 16px;
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+       .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(34, 197, 94, 0.5);
+        }
+
+       .modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            border-radius: 24px;
+            padding: 2rem;
+            z-index: 10;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+       .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+       .close-btn {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+       .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+       .placeholder-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        #playing {
+            display: none;
+            padding: 1.5rem;
+        }
+
+       .profiles-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 1rem;
+        }
+
+       .profile-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 14px;
+            border-radius: 16px;
+            width: 45%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #playerpro {
+            border-left: 4px solid #3b82f6;
+        }
+
+        #aipro {
+            flex-direction: row-reverse;
+            border-right: 4px solid #ef4444;
+            text-align: right;
+        }
+
+       .avatar {
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+       .pro-details p {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+       .pro-details h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+       .toss-choice-container {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            justify-content: center;
+            margin: 0.5rem 0;
+        }
+
+       .toss-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+       .toss-btn.active {
+            background: #eab308;
+            color: #0f172a;
+            border-color: #fde047;
+            box-shadow: 0 0 12px rgba(234, 179, 8, 0.4);
+        }
+
+        #info {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            width: 100%;
+            padding: 1.2rem;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        #info.status-msg {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #38bdf8;
+        }
+
+        #info.sub-status {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+       .score-box {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            border-radius: 16px;
+            padding: 0.8rem;
+            text-align: center;
+        }
+
+       .score-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+        }
+
+       .score-display {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #f59e0b;
+            transition: transform 0.2s ease;
+        }
+
+       .score-display.pop {
+            transform: scale(1.15);
+        }
+
+        #hands {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.01);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+       .hand-lane {
+            text-align: center;
+        }
+
+       .hand-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+       .hand-val {
+            font-size: 2.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+       .hand-val.flash {
+            background: var(--bat-flash, rgba(59, 130, 246, 0.4));
+            transform: scale(1.1);
+        }
+
+        #nums {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 16px;
+        }
+
+       .num-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+       .num-box:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+       .num-box.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #60a5fa;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+            transform: scale(1.05);
+        }
+
+       .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+       .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+       .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+       .toggle {
+            width: 50px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+       .toggle.active {
+            background: #22c55e;
+        }
+
+       .toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: 0.2s;
+        }
+
+       .toggle.active::after {
+            left: 25px;
+        }
+
+       .difficulty-select {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+       .diff-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+       .diff-btn.active {
+            background: #3b82f6;
+            border-color: #60a5fa;
+        }
+
+       .reset-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px;
+            color: #fca5a5;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+       .reset-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+.game-subtitle {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #94a3b8;
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+    </style>
+</head>
+<body>
+
+    <div class="menu-container" id="menuArea">
+        <div class="top-bar">
+            <button class="icon-btn" onclick="openModal('shop-modal')">🛍️ Shop</button>
+            <button class="icon-btn" onclick="openModal('profile-modal')">👤 Profile</button>
+        </div>
+
+        <div class="logo-area">
+    <div class="logo" id="batLogo">🏏</div>
+    <h1 class="game-title">ASA Gh Hand Cricket</h1>
+    <p class="game-subtitle">by ASA Gh</p>
+</div>
+
+        <div class="bottom-area">
+            <button class="play-btn" onclick="startGame()">Play</button>
+            <button class="icon-btn" onclick="openModal('settings-modal')">⚙️ Settings</button>
+        </div>
+
+        <div id="shop-modal" class="modal">
+            <div class="modal-header">
+                <h2>Customization Shop</h2>
+                <button class="close-btn" onclick="closeModal('shop-modal')">✕</button>
+            </div>
+            <div class="skin-grid" id="skinGrid"></div>
+        </div>
+
+        <div id="profile-modal" class="modal">
+            <div class="modal-header">
+                <h2>Player Profile</h2>
+                <button class="close-btn" onclick="closeModal('profile-modal')">✕</button>
+            </div>
+            <div class="placeholder-item"><strong>Username:</strong> Player_1</div>
+            <div class="placeholder-item"><strong>High Score:</strong> <span id="highScore">0</span></div>
+            <div class="placeholder-item"><strong>Coins:</strong> 🪙 <span id="coins">0</span></div>
+        </div>
+
+        <div id="settings-modal" class="modal">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-btn" onclick="closeModal('settings-modal')">✕</button>
+            </div>
+            <div class="placeholder-item toggle-row">
+                <span>Sound Effects</span>
+                <div class="toggle active" id="soundToggle" onclick="toggleSound()"></div>
+            </div>
+            <div class="placeholder-item">
+                <span>Difficulty</span>
+                <div class="difficulty-select">
+                    <button class="diff-btn" onclick="setDifficulty('easy')">Easy</button>
+                    <button class="diff-btn active" onclick="setDifficulty('normal')">Normal</button>
+                    <button class="diff-btn" onclick="setDifficulty('hard')">Hard</button>
+                </div>
+            </div>
+            <div class="placeholder-item">
+                <span>Background Theme</span>
+                <div class="color-picker">
+                    <button class="color-btn" data-name="Dark" style="background: linear-gradient(135deg, #111827, #312e81);" onclick="setBackground('dark')"></button>
+                    <button class="color-btn" data-name="Ocean" style="background: linear-gradient(135deg, #1e3a8a, #0ea5e9);" onclick="setBackground('blue')"></button>
+                    <button class="color-btn" data-name="Inferno" style="background: linear-gradient(135deg, #7c2d12, #dc2626);" onclick="setBackground('red')"></button>
+                    <button class="color-btn" data-name="Forest" style="background: linear-gradient(135deg, #064e3b, #10b981);" onclick="setBackground('green')"></button>
+                    <button class="color-btn" data-name="Nebula" style="background: linear-gradient(135deg, #4a044e, #c026d3);" onclick="setBackground('purple')"></button>
+                    <button class="color-btn" data-name="Sunset" style="background: linear-gradient(135deg, #f97316, #fbbf24);" onclick="setBackground('orange')"></button>
+                    <button class="color-btn" data-name="Midnight" style="background: linear-gradient(135deg, #0f172a, #1e1b4b);" onclick="setBackground('midnight')"></button>
+                    <button class="color-btn" data-name="Cyber" style="background: linear-gradient(135deg, #0d9488, #06b6d4);" onclick="setBackground('cyan')"></button>
+                </div>
+                <button class="reset-btn" onclick="resetSettings()">Reset Everything</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="playing">
+        <div class="profiles-container">
+            <div id="playerpro" class="profile-card">
+                <div class="avatar">👤</div>
+                <div class="pro-details">
+                    <h3>You</h3>
+                    <p id="playerRole">Undecided</p>
+                </div>
+            </div>
+            <div id="aipro" class="profile-card">
+                <div class="avatar">🤖</div>
+                <div class="pro-details">
+                    <h3>Opponent</h3>
+                    <p id="aiRole">Undecided</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="toss-choice-container" id="tossSelectionBox">
+            <button class="toss-btn active" id="btnOdd" onclick="selectTossCall('odd')">ODD</button>
+            <button class="toss-btn" id="btnEven" onclick="selectTossCall('even')">EVEN</button>
+        </div>
+
+        <div id="info">
+            <div class="status-msg" id="mainStatus">TOSS PHASE</div>
+            <div class="sub-status" id="subStatus">Choose ODD or EVEN, pick a number, and hit Submit Toss!</div>
+        </div>
+
+        <div class="score-box">
+            <div class="score-title" id="scoreLabel">Score</div>
+            <div class="score-display" id="totalScore">0</div>
+        </div>
+
+        <div id="hands">
+            <div class="hand-lane">
+                <div class="hand-label">You</div>
+                <div class="hand-val" id="playerHand">-</div>
+            </div>
+            <div style="font-size: 1.5rem; color: #475569; font-weight: bold;">VS</div>
+            <div class="hand-lane">
+                <div class="hand-label">AI</div>
+                <div class="hand-val" id="aiHand">-</div>
+            </div>
+        </div>
+
+        <div id="nums" oncontextmenu="return false;">
+            <div class="num-box" onmousedown="selectNumber(1, event)" ontouchstart="selectNumber(1, event)">1</div>
+            <div class="num-box" onmousedown="selectNumber(2, event)" ontouchstart="selectNumber(2, event)">2</div>
+            <div class="num-box" onmousedown="selectNumber(3, event)" ontouchstart="selectNumber(3, event)">3</div>
+            <div class="num-box" onmousedown="selectNumber(4, event)" ontouchstart="selectNumber(4, event)">4</div>
+            <div class="num-box" onmousedown="selectNumber(5, event)" ontouchstart="selectNumber(5, event)">5</div>
+            <div class="num-box" onmousedown="selectNumber(6, event)" ontouchstart="selectNumber(6, event)">6</div>
+            <div class="num-box" onmousedown="selectNumber(7, event)" ontouchstart="selectNumber(7, event)">7</div>
+            <div class="num-box" onmousedown="selectNumber(8, event)" ontouchstart="selectNumber(8, event)">8</div>
+            <div class="num-box" onmousedown="selectNumber(9, event)" ontouchstart="selectNumber(9, event)">9</div>
+            <div class="num-box" onmousedown="selectNumber(10, event)" ontouchstart="selectNumber(10, event)">10</div>
+        </div>
+
+        <div class="action-container">
+            <button class="menu-btn" id="menuBtn" onclick="goToMenu()">Menu</button>
+            <button class="submit-btn" id="actionBtn" onclick="submitToss()">Submit Toss</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let selectedRun = null;
+        let playerTossCall = 'odd';
+        let isTossPhase = true;
+        let playerRole = '';
+        let innings = 1;
+        let playerScore = 0;
+        let aiScore = 0;
+        let target = null;
+        let soundOn = localStorage.getItem('hcSound')!== 'false';
+        let highScore = parseInt(localStorage.getItem('hcHighScore') || 0);
+        let coins = parseInt(localStorage.getItem('hcCoins') || 100);
+        let difficulty = localStorage.getItem('hcDifficulty') || 'normal';
+        let ownedSkins = JSON.parse(localStorage.getItem('hcSkins') || '["default"]');
+        let equippedSkin = localStorage.getItem('hcEquippedSkin') || 'default';
+
+        const backgrounds = {
+            dark: 'linear-gradient(135deg, #111827, #312e81)',
+            blue: 'linear-gradient(135deg, #1e3a8a, #0ea5e9)',
+            red: 'linear-gradient(135deg, #7c2d12, #dc2626)',
+            green: 'linear-gradient(135deg, #064e3b, #10b981)',
+            purple: 'linear-gradient(135deg, #4a044e, #c026d3)',
+            orange: 'linear-gradient(135deg, #f97316, #fbbf24)',
+            midnight: 'linear-gradient(135deg, #0f172a, #1e1b4b)',
+            cyan: 'linear-gradient(135deg, #0d9488, #06b6d4)'
+        };
+
+        const batSkins = {
+            default: {
+                name: "Classic",
+                price: 0,
+                gradient: 'linear-gradient(45deg, #f43f5e, #ec4899)',
+                glow: 'rgba(244, 63, 94, 0.5)',
+                flash: 'rgba(59, 130, 246, 0.4)',
+                icon: '🏏'
+            },
+            gold: {
+                name: "Golden Bat",
+                price: 150,
+                gradient: 'linear-gradient(45deg, #fbbf24, #f59e0b)',
+                glow: 'rgba(251, 191, 36, 0.6)',
+                flash: 'rgba(251, 191, 36, 0.5)',
+                icon: '🥇'
+            },
+            ice: {
+                name: "Frost Bat",
+                price: 200,
+                gradient: 'linear-gradient(45deg, #06b6d4, #0ea5e9)',
+                glow: 'rgba(6, 182, 212, 0.6)',
+                flash: 'rgba(6, 182, 212, 0.5)',
+                icon: '❄️'
+            },
+            fire: {
+                name: "Inferno Bat",
+                price: 250,
+                gradient: 'linear-gradient(45deg, #dc2626, #f97316)',
+                glow: 'rgba(220, 38, 38, 0.7)',
+                flash: 'rgba(220, 38, 38, 0.5)',
+                icon: '🔥'
+            },
+            void: {
+                name: "Void Bat",
+                price: 300,
+                gradient: 'linear-gradient(45deg, #4a044e, #7c3aed)',
+                glow: 'rgba(124, 58, 237, 0.6)',
+                flash: 'rgba(124, 58, 237, 0.5)',
+                icon: '🌌'
+            }
+        };
+
+        // Audio setup
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playSound(freq, dur=0.12, type='square') {
+            if (!soundOn) return;
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
+
+        // DOM cache
+        const els = {
+            playerHand: document.getElementById('playerHand'),
+            aiHand: document.getElementById('aiHand'),
+            totalScore: document.getElementById('totalScore'),
+            scoreLabel: document.getElementById('scoreLabel'),
+            mainStatus: document.getElementById('mainStatus'),
+            subStatus: document.getElementById('subStatus'),
+            playerRole: document.getElementById('playerRole'),
+            aiRole: document.getElementById('aiRole'),
+            actionBtn: document.getElementById('actionBtn'),
+            tossBox: document.getElementById('tossSelectionBox'),
+            batLogo: document.getElementById('batLogo')
+        };
+
+        document.getElementById('highScore').innerText = highScore;
+        document.getElementById('coins').innerText = coins;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('hcBgTheme') || 'dark';
+            setBackground(savedTheme, false);
+            updateDifficultyUI();
+            updateSoundUI();
+            applySkin(equippedSkin);
+            renderShop();
+        });
+
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            if (id === 'shop-modal') renderShop();
+        }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function renderShop() {
+            const grid = document.getElementById('skinGrid');
+            grid.innerHTML = '';
+
+            Object.keys(batSkins).forEach(key => {
+                const skin = batSkins[key];
+                const owned = ownedSkins.includes(key);
+                const equipped = equippedSkin === key;
+
+                const card = document.createElement('div');
+                card.className = 'skin-card' + (owned? ' owned' : '');
+                card.innerHTML = `
+                    <div class="skin-preview" style="background: ${skin.gradient}; box-shadow: 0 0 20px ${skin.glow};">${skin.icon}</div>
+                    <div>${skin.name}</div>
+                    ${!owned? `<div class="skin-price">🪙 ${skin.price}</div>` : ''}
+                    <button class="skin-btn ${equipped? 'equipped' : owned? 'equip' : 'buy'}"
+                            onclick="handleSkin('${key}')"
+                            ${equipped? 'disabled' : ''}>
+                        ${equipped? 'Equipped' : owned? 'Equip' : 'Buy'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function handleSkin(key) {
+            const skin = batSkins[key];
+            const owned = ownedSkins.includes(key);
+
+            if (!owned) {
+                if (coins < skin.price) {
+                    alert('Not enough coins!');
+                    return;
+                }
+                coins -= skin.price;
+                ownedSkins.push(key);
+                localStorage.setItem('hcCoins', coins);
+                localStorage.setItem('hcSkins', JSON.stringify(ownedSkins));
+                document.getElementById('coins').innerText = coins;
+                playSound(900, 0.2);
+            }
+
+            equipSkin(key);
+        }
+
+        function equipSkin(key) {
+            equippedSkin = key;
+            localStorage.setItem('hcEquippedSkin', key);
+            applySkin(key);
+            renderShop();
+            playSound(700, 0.1);
+        }
+
+        function applySkin(key) {
+            const skin = batSkins[key];
+            document.documentElement.style.setProperty('--bat-gradient', skin.gradient);
+            document.documentElement.style.setProperty('--bat-glow', skin.glow);
+            document.documentElement.style.setProperty('--bat-flash', skin.flash);
+            els.batLogo.innerText = skin.icon;
+        }
+
+        function toggleSound() {
+            soundOn =!soundOn;
+            localStorage.setItem('hcSound', soundOn);
+            updateSoundUI();
+            if (soundOn) playSound(800, 0.08);
+                }
+
+        function updateSoundUI() {
+            document.getElementById('soundToggle').classList.toggle('active', soundOn);
+        }
+
+        function setDifficulty(level) {
+            difficulty = level;
+            localStorage.setItem('hcDifficulty', level);
+            updateDifficultyUI();
+            playSound(700, 0.06);
+        }
+
+        function updateDifficultyUI() {
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === difficulty);
+            });
+        }
+
+        function addCoins(amount) {
+            coins += amount;
+            localStorage.setItem('hcCoins', coins);
+            document.getElementById('coins').innerText = coins;
+        }
+
+        function startGame() {
+            document.getElementById("menuArea").style.display = "none";
+            document.getElementById("playing").style.display = "flex";
+            resetToTossPhase();
+        }
+
+        function selectTossCall(choice) {
+            if (!isTossPhase) return;
+            playerTossCall = choice;
+            document.getElementById('btnOdd').classList.toggle('active', choice === 'odd');
+            document.getElementById('btnEven').classList.toggle('active', choice === 'even');
+            els.subStatus.innerText = `You called ${choice.toUpperCase()}. Select a number!`;
+            playSound(600, 0.06);
+        }
+
+        function selectNumber(num, event) {
+            selectedRun = num;
+            document.querySelectorAll('.num-box').forEach(box => box.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            playSound(400 + num * 20, 0.05);
+        }
+
+        function clearSelectedNumbers() {
+            selectedRun = null;
+            document.querySelectorAll('.num-box').forEach(box => box.classList.remove('selected'));
+        }
+
+        function animateScore() {
+            els.totalScore.classList.add('pop');
+            setTimeout(() => els.totalScore.classList.remove('pop'), 200);
+        }
+
+        function flashHands() {
+            els.playerHand.classList.add('flash');
+            els.aiHand.classList.add('flash');
+            setTimeout(() => {
+                els.playerHand.classList.remove('flash');
+                els.aiHand.classList.remove('flash');
+            }, 250);
+        }
+
+        function resetToTossPhase() {
+            isTossPhase = true;
+            innings = 1;
+            playerScore = 0;
+            aiScore = 0;
+            target = null;
+            playerRole = '';
+            els.tossBox.style.display = 'flex';
+            els.playerRole.innerText = 'Undecided';
+            els.aiRole.innerText = 'Undecided';
+            els.scoreLabel.innerText = 'Toss Score';
+            els.totalScore.innerText = '0';
+            els.mainStatus.innerText = 'TOSS PHASE';
+            els.subStatus.innerText = `Difficulty: ${difficulty.toUpperCase()}. Choose ODD or EVEN!`;
+            els.actionBtn.innerText = 'Submit Toss';
+            els.actionBtn.setAttribute('onclick', 'submitToss()');
+            clearSelectedNumbers();
+        }
+
+        function getAIChoice() {
+            let rand = Math.floor(Math.random() * 10) + 1;
+            if (difficulty === 'easy') return rand;
+            if (difficulty === 'normal') {
+                if (Math.random() < 0.25 && selectedRun) return selectedRun;
+                return rand;
+            }
+            if (Math.random() < 0.45 && selectedRun) return selectedRun;
+            let hardChoice = Math.floor(Math.random() * 10) + 1;
+            if (Math.random() < 0.3) hardChoice = Math.floor(Math.random() * 8) + 2;
+            return hardChoice;
+        }
+
+        function submitToss() {
+            if (selectedRun === null) {
+                alert("Pick a number 1-10 first!");
+                return;
+            }
+
+            const aiChoice = getAIChoice();
+            const sum = selectedRun + aiChoice;
+            const resultIsOdd = (sum % 2!== 0);
+            const winningCall = resultIsOdd? 'odd' : 'even';
+
+            els.playerHand.innerText = selectedRun;
+            els.aiHand.innerText = aiChoice;
+            els.totalScore.innerText = sum;
+            flashHands();
+            playSound(700, 0.15);
+
+            if (playerTossCall === winningCall) {
+                playerRole = 'Batter';
+                els.playerRole.innerText = 'Batter';
+                els.aiRole.innerText = 'Bowler';
+                els.mainStatus.innerText = 'You won the Toss!';
+                els.subStatus.innerText = `Total ${sum} (${winningCall.toUpperCase()}). You bat first!`;
+            } else {
+                playerRole = 'Bowler';
+                els.playerRole.innerText = 'Bowler';
+                els.aiRole.innerText = 'Batter';
+                els.mainStatus.innerText = 'AI won the Toss!';
+                els.subStatus.innerText = `Total ${sum} (${winningCall.toUpperCase()}). AI bats first!`;
+            }
+
+            isTossPhase = false;
+            els.tossBox.style.display = 'none';
+            els.scoreLabel.innerText = playerRole === 'Batter'? 'Your Score' : "AI Score";
+            els.totalScore.innerText = '0';
+            els.actionBtn.innerText = 'Submit Play';
+            els.actionBtn.setAttribute('onclick', 'submitTurn()');
+            clearSelectedNumbers();
+        }
+
+        function submitTurn() {
+            if (selectedRun === null) {
+                alert("Pick a number to play!");
+                return;
+            }
+
+            const aiChoice = getAIChoice();
+            els.playerHand.innerText = selectedRun;
+            els.aiHand.innerText = aiChoice;
+            flashHands();
+
+            if (selectedRun === aiChoice) {
+                playSound(200, 0.3, 'sawtooth');
+                if (target === null) {
+                    if (playerRole === 'Batter') {
+                        aiScore = playerScore;
+                        target = playerScore + 1;
+                        playerRole = 'Bowler';
+                        els.playerRole.innerText = 'Bowler';
+                        els.aiRole.innerText = 'Batter';
+                        els.mainStatus.innerText = "OUT! Innings Over";
+                        els.subStatus.innerText = `You scored ${playerScore}. AI needs ${target} to win.`;
+                    } else {
+                        playerScore = aiScore;
+                        target = aiScore + 1;
+                        playerRole = 'Batter';
+                        els.playerRole.innerText = 'Batter';
+                        els.aiRole.innerText = 'Bowler';
+                        els.mainStatus.innerText = "AI OUT! Innings Over";
+                        els.subStatus.innerText = `AI scored ${aiScore}. You need ${target} to win.`;
+                    }
+                    innings = 2;
+                    playerScore = 0;
+                    aiScore = 0;
+                    els.scoreLabel.innerText = playerRole === 'Batter'? 'Your Score' : "AI Score";
+                    els.totalScore.innerText = '0';
+                } else {
+                    determineWinner(false);
+                }
+            } else {
+                playSound(550 + selectedRun * 15, 0.1);
+                if (playerRole === 'Batter') {
+                    playerScore += selectedRun;
+                    els.totalScore.innerText = playerScore;
+                    els.mainStatus.innerText = `+${selectedRun} Runs!`;
+                    els.subStatus.innerText = `AI threw ${aiChoice}. Keep going!`;
+                } else {
+                    aiScore += aiChoice;
+                    els.totalScore.innerText = aiScore;
+                    els.mainStatus.innerText = `AI +${aiChoice}!`;
+                    els.subStatus.innerText = `You threw ${selectedRun}.`;
+                }
+                animateScore();
+
+                if (target!== null) {
+                    const currentScore = playerRole === 'Batter'? playerScore : aiScore;
+                    if (currentScore >= target) {
+                        determineWinner(true);
+                    }
+                }
+            }
+
+            clearSelectedNumbers();
+        }
+
+        function determineWinner(chasedDown) {
+            let winnerText, subText;
+            let won = false;
+
+            if (chasedDown) {
+                if (playerRole === 'Batter') {
+                    winnerText = "YOU WIN! 🎉";
+                    subText = `You chased ${target} runs on ${difficulty}!`;
+                    won = true;
+                    playSound(900, 0.4);
+                } else {
+                    winnerText = "AI WINS! 🤖";
+                    subText = `AI chased ${target} runs.`;
+                    playSound(300, 0.4);
+                }
+            } else {
+                if (playerRole === 'Batter') {
+                    winnerText = "YOU WIN! 🎉";
+                    subText = `You defended ${target - 1}! AI got ${aiScore}.`;
+                    won = true;
+                    playSound(900, 0.4);
+                } else {
+                    winnerText = "AI WINS! 🤖";
+                    subText = `AI defended ${target - 1}. You got ${playerScore}.`;
+                    playSound(300, 0.4);
+                }
+            }
+
+            if (won) {
+                let coinReward = difficulty === 'easy'? 20 : difficulty === 'normal'? 30 : 40;
+                addCoins(coinReward);
+                subText += ` +${coinReward} coins!`;
+
+                if (playerScore > highScore) {
+                    highScore = playerScore;
+                    localStorage.setItem('hcHighScore', highScore);
+                    document.getElementById('highScore').innerText = highScore;
+                    subText += " New High Score!";
+                }
+            }
+
+            els.mainStatus.innerText = winnerText;
+            els.subStatus.innerText = subText;
+            els.actionBtn.innerText = 'Play Again';
+            els.actionBtn.setAttribute('onclick', 'resetToTossPhase()');
+        }
+
+        function goToMenu() {
+            if (!confirm("Quit current match and go to menu?")) return;
+            document.getElementById("playing").style.display = "none";
+            document.getElementById("menuArea").style.display = "flex";
+            resetToTossPhase();
+        }
+
+        function setBackground(theme, save = true) {
+            const gradient = backgrounds[theme];
+            if (!gradient) return;
+
+            document.body.style.background = gradient;
+            document.body.style.setProperty('--bg-gradient', gradient);
+
+            if (save) {
+                localStorage.setItem('hcBgTheme', theme);
+            }
+            updateBackgroundUI(theme);
+            closeModal('settings-modal');
+            playSound(700, 0.06);
+        }
+
+        function updateBackgroundUI(activeTheme) {
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick').includes(activeTheme)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function resetSettings() {
+            if (!confirm("Reset all settings, coins, skins, and high score?")) return;
+
+            localStorage.clear();
+            location.reload();
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+function applySkin(key) {
+    const skin = batSkins[key];
+    document.documentElement.style.setProperty('--bat-gradient', skin.gradient);
+    document.documentElement.style.setProperty('--bat-glow', skin.glow);
+    document.documentElement.style.setProperty('--bat-flash', skin.flash);
+    els.batLogo.innerText = skin.icon; // This stays as icon only
+}
+    </script>
+</body>
+</html>
